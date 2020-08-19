@@ -1,6 +1,6 @@
 with rec {
   function = import ./function.nix;
-  inherit (function) id;
+  inherit (function) id flip;
   list = import ./list.nix;
 };
 
