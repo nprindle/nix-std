@@ -21,6 +21,8 @@ rec {
   */
   assign = k: v: r: r // { "${k}" = v; };
 
+  contains = k: s: s ? "${k}";
+
   match = o: { empty, assign }:
     if o == {}
     then empty
@@ -37,9 +39,31 @@ rec {
   */
   keys = builtins.attrNames;
 
-  /* map :: (key -> value -> value) -> set -> set
+  /* values :: set -> [value]
   */
-  map = builtins.mapAttrs;
+  values = builtins.attrValues;
+
+  /* mapWithKey :: (key -> value -> value) -> set -> set
+  */
+  mapWithKey = builtins.mapAttrs;
+
+  /* map :: (value -> value) -> set -> set
+  */
+  map = f: mapWithKey (_: f);
+
+  /* mapKeysWith :: (value -> value -> value) -> (key -> key) -> set -> set
+  */
+  mapKeysWith = f: g:
+    (flip match) {
+      empty = empty;
+      assign = k: v: r:
+        let
+          rest = mapKeysWith f g r;
+          newKey = g k;
+        in assign newKey
+          (if contains newKey rest then f rest."${newKey}" v else v)
+          rest;
+    };
 
   /* filter :: (key -> value -> bool) -> set -> set
   */
@@ -53,6 +77,14 @@ rec {
       assign = k: v: r: ap.ap (ap.map (assign k) (f v)) (traverse ap f r);
     };
 
+  /* traverseWithKey :: Applicative f => (key -> a -> f b) -> set key a -> f (set key b)
+  */
+  traverseWithKey = ap: f:
+    (flip match) {
+      empty = ap.pure empty;
+      assign = k: v: r: ap.ap (ap.map (assign k) (f k v)) (traverse ap f r);
+    };
+
   /* sequence :: Applicative f => set key (f a) -> f (set key a)
   */
   sequence = ap:
@@ -62,6 +94,16 @@ rec {
     };
 
   /* toList :: set -> [(key, value)]
+
+     Convert a set to a list of key-value tuples.
   */
   toList = s: list.map (k: { _0 = k; _1 = s.${k}; }) (keys s);
+
+  /* fromList :: [(key, value)] -> set
+
+     Convert a list of key-value tuples to a set. If two pairs have the same
+     key, the later one will take precedence, and the first will be discarded
+     from the final result.
+  */
+  fromList = list.foldl' (as: { _0, _1 }: as // { "${_0}" = _1; }) {};
 }
