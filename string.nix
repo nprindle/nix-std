@@ -521,13 +521,9 @@ rec {
   lines = str:
     let
       len = length str;
-      str' =
-        if len > 0 && substring (len - 1) 1 str == "\n"
-          then substring 0 (len - 1) str
-          else str;
-    in if isEmpty str # "" is a special case; "\n"/"" don't have the same result
-      then []
-      else regex.splitOn "\n" str';
+      str' = if hasSuffix "\n" str then init str else str;
+      # "" is a special case; "\n"/"" don't have the same result
+    in list.optionals (!isEmpty str) (regex.splitOn "\n" str');
 
   /* unlines :: [string] -> string
 
