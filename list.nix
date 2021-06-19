@@ -643,14 +643,45 @@ rec {
   */
   replicate = n: x: generate (const x) n;
 
+  /* sublist :: nullable int -> nullable int -> [a] -> [a]
+
+     Extract a slice from the input list, starting and ending at the provided
+     index bounds, inclusive. A null starting bound implies index 0, and a null
+     ending bound implies the last index.
+
+     Fails if either of the indices are non-null and out of bounds. If the
+     starting index is greater than the ending index, it will simply return the
+     empty list.
+
+     > list.sublist 2 3 [ 1 2 3 4 5 ]
+     [ 3 4 ]
+     > list.sublist 2 null [ 1 2 3 4 5 ]
+     [ 3 4 5 ]
+     > list.sublist null 2 [ 1 2 3 4 5 ]
+     [ 1 2 3 ]
+     > list.sublist null null [ 1 2 3 4 5 ]
+     [ 1 2 3 4 5 ]
+  */
+  sublist = start: end: xs:
+    let
+      start' = if start == null then 0 else start;
+      len = length xs;
+      sublistLen = if end == null then null else end - start' + 1;
+    in
+      if start != null && (start < 0 || start >= len) then
+        builtins.throw "std.list.sublist: start index out of bounds"
+      else if (end != null && (end < 0 || end >= len)) then
+        builtins.throw "std.list.sublist: end index out of bounds"
+      else slice start' sublistLen xs;
+
   /* slice :: int -> nullable int -> [a] -> [a]
 
      Extract a sublist from a list given a starting position and a length. If
      the starting position is past the end of the list, return the empty list.
      If there are fewer than the requested number of elements after the starting
-     position, take as many as possible. If the requested length is null,
-     ignore the length and return until the end of the list. If the requested
-     length is less than 0, the length used will be 0.
+     position, take as many as possible. If the requested length is null, ignore
+     the length and return until the end of the list. If the requested length is
+     less than 0, the length used will be 0.
 
      Fails if the given offset is negative.
 

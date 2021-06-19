@@ -224,6 +224,13 @@ section "std.list" {
     (assertEqual [1 2 3] (list.optionals true [1 2 3]))
   ];
   replicate = assertEqual [1 1 1 1 1 1] (list.replicate 6 1);
+  sublist = string.unlines [
+    (assertEqual [ 3 4 ] (list.sublist 2 3 [ 1 2 3 4 5 ]))
+    (assertEqual [ 3 4 5 ] (list.sublist 2 null [ 1 2 3 4 5 ]))
+    (assertEqual [ 1 2 3 ] (list.sublist null 2 [ 1 2 3 4 5 ]))
+    (assertEqual [ 1 2 3 4 5 ] (list.sublist null null [ 1 2 3 4 5 ]))
+    (assertEqual [] (list.sublist 2 1 [ 1 2 3 4 5 ]))
+  ];
   slice = string.unlines [
     (assertEqual [3 4] (list.slice 2 2 [ 1 2 3 4 5 ]))
     (assertEqual [3 4 5] (list.slice 2 30 [ 1 2 3 4 5 ]))
