@@ -45,12 +45,20 @@ rec {
   */
   filter = builtins.filterAttrs;
 
-  /* traverse :: Applicative f => (value -> f
+  /* traverse :: Applicative f => (a -> f b) -> set key a -> f (set key b)
   */
   traverse = ap: f:
     (flip match) {
       empty = ap.pure empty;
-      assign = k: v: r: ap.lift2 id (ap.map (assign k) (f v)) (traverse ap f r);
+      assign = k: v: r: ap.ap (ap.map (assign k) (f v)) (traverse ap f r);
+    };
+
+  /* sequence :: Applicative f => set key (f a) -> f (set key a)
+  */
+  sequence = ap:
+    (flip match) {
+      empty = ap.pure empty;
+      assign = k: v: r: ap.ap (ap.map (assign k) v) (sequence ap r);
     };
 
   /* toList :: set -> [(key, value)]
