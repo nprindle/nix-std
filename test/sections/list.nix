@@ -152,6 +152,17 @@ section "std.list" {
     (assertEqual (list.range 0 4) (list.generate id 5))
   ];
 
+  permutations = string.unlines [
+    (assertEqual
+      [ [ 1 2 3 ] [ 2 1 3 ] [ 2 3 1 ] [ 1 3 2 ] [ 3 1 2 ] [ 3 2 1 ] ]
+      (list.permutations [ 1 2 3 ]))
+  ];
+  subsequences = string.unlines [
+    (assertEqual
+      [ [ ] [ 3 ] [ 2 ] [ 2 3 ] [ 1 ] [ 1 3 ] [ 1 2 ] [ 1 2 3 ] ]
+      (list.subsequences [ 1 2 3 ]))
+  ];
+
   windows = string.unlines [
     (assertEqual [[1 2 3] [2 3 4] [3 4 5] [4 5 6]] (list.windows 3 (list.range 1 6)))
     (assertEqual [[1] [2] [3] [4] [5]] (list.windows 1 (list.range 1 5)))

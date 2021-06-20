@@ -361,6 +361,36 @@ rec {
   */
   generate = builtins.genList;
 
+  /* permutations :: [a] -> [[a]]
+
+     Compute all permutations of the input list.
+
+     > list.permutations [ 1 2 3 ]
+     [ [ 1 2 3 ] [ 2 1 3 ] [ 2 3 1 ] [ 1 3 2 ] [ 3 1 2 ] [ 3 2 1 ] ]
+  */
+  permutations = xs: match xs {
+    nil = [[]];
+    cons = y: ys:
+      let perms = permutations ys;
+      in concatMap (p: generate (i: insertAt i y p) (length p + 1)) perms;
+  };
+
+  /* subsequences :: [a] -> [[a]]
+
+     Compute all non-contiguous ordered subsequences of the list, in which each
+     elements corresponds to an element of the powerset of the indices of the
+     list.
+
+     > list.subsequences [ 1 2 3 ]
+     [ [ ] [ 3 ] [ 2 ] [ 2 3 ] [ 1 ] [ 1 3 ] [ 1 2 ] [ 1 2 3 ] ]
+  */
+  subsequences = xs: match xs {
+    nil = [[]];
+    cons = y: ys:
+      let seqs = subsequences ys;
+      in seqs ++ map (cons y) seqs;
+  };
+
   /* windows :: int -> [a] -> [[a]]
 
      Create a new list containing all sublists of the original list of length
