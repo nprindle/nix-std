@@ -8,9 +8,9 @@ in rec {
   */
   readFile = builtins.readFile;
 
-  /* pathExists :: path -> bool
+  /* exists :: path -> bool
   */
-  pathExists = builtins.pathExists;
+  exists = builtins.pathExists;
 
   /* readDir :: path -> attrset
 
