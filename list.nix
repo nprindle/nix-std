@@ -361,6 +361,79 @@ rec {
   */
   generate = builtins.genList;
 
+  /* windows :: int -> [a] -> [[a]]
+
+     Create a new list containing all sublists of the original list of length
+     `n`, overlapping allowed.
+
+     If there are fewer than `n` elements, returns the empty list.
+
+     Fails if the window size is zero or negative.
+
+     > list.windows 3 (list.range 1 6)
+     [[1 2 3] [2 3 4] [3 4 5] [4 5 6]]
+  */
+  windows = n: xs:
+    let
+      len = builtins.length xs;
+      resultLen = max 0 (len - n + 1);
+    in
+      if n <= 0
+      then builtins.throw "std.list.windows: invalid window size"
+      else generate (i: slice i n xs) (len - n + 1);
+
+  /* chunks :: { bias :: "left" | "right", dropExtra :: bool } -> int -> [a] -> [[a]]
+
+     Divide the input list into non-overlapping sublists of size `n`.
+
+     `bias` is either "left" or "right", and will bias the creation of chunks to
+     that side, such that any extra chunks of size less than n will be on the
+     opposite side. By default, chunks are left-biased.
+
+     If `dropExtra` is true, then any extra chunks of size less than n will be
+     discarded. If it is false, then a chunk of size smaller than `n` will be
+     left on the opposite side of `bias`. By default, `dropExtra` is false.
+
+     Fails if the chunk size is zero or negative.
+
+     > list.chunks { bias = "left"; dropExtra = false; } 3 (list.range 1 8)
+     [ [ 1 2 3 ] [ 4 5 6 ] [ 7 8 ] ]
+     > list.chunks { bias = "right"; dropExtra = false; } 3 (list.range 1 8)
+     [ [ 1 2 ] [ 3 4 5 ] [ 6 7 8 ] ]
+     > list.chunks { bias = "left"; dropExtra = true; } 3 (list.range 1 8)
+     [ [ 1 2 3 ] [ 4 5 6 ] ]
+     > list.chunks { bias = "right"; dropExtra = true; } 3 (list.range 1 8)
+     [ [ 3 4 5 ] [ 6 7 8 ] ]
+  */
+  chunks = { bias ? "left", dropExtra ? false }: n: xs:
+    if bias != "left" && bias != "right" then
+      builtins.throw "std.list.chunks: invalid bias side"
+    else if n <= 0 then
+      builtins.throw "std.list.chunks: invalid chunk size"
+    else
+      let
+        len = builtins.length xs;
+        numChunks = num.quot len n;
+        leftoverSize = num.rem len n;
+        hasLeftover = leftoverSize != 0;
+      in
+        if !hasLeftover || (dropExtra && bias == "right") then
+          generate (i: slice (i * n + leftoverSize) n xs) numChunks
+        else if dropExtra then
+          # bias == "left", dropExtra = true
+          generate (i: slice (i * n) n xs) numChunks
+        else if bias == "left" then
+          # bias == "left", dropExtra = false
+          generate (i: slice (i * n) n xs) (numChunks + 1)
+        else
+          # bias == "right", dropExtra = false
+          generate
+            (i:
+              if i == 0
+              then slice 0 leftoverSize xs
+              else slice ((i - 1) * n + leftoverSize) n xs)
+            (numChunks + 1);
+
   /* nil :: [a]
 
      The empty list, []

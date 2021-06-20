@@ -151,6 +151,21 @@ section "std.list" {
   generate = string.unlines [
     (assertEqual (list.range 0 4) (list.generate id 5))
   ];
+
+  windows = string.unlines [
+    (assertEqual [[1 2 3] [2 3 4] [3 4 5] [4 5 6]] (list.windows 3 (list.range 1 6)))
+    (assertEqual [[1] [2] [3] [4] [5]] (list.windows 1 (list.range 1 5)))
+    (assertEqual [] (list.windows 6 (list.range 1 5)))
+  ];
+  chunks = string.unlines [
+    (assertEqual [ [ 1 2 3 ] [ 4 5 6 ] [ 7 8 ] ] (list.chunks { bias = "left"; dropExtra = false; } 3 (list.range 1 8)))
+    (assertEqual [ [ 1 2 3 ] [ 4 5 6 ] [ 7 8 ] ] (list.chunks {} 3 (list.range 1 8)))
+    (assertEqual [ [ 1 2 ] [ 3 4 5 ] [ 6 7 8 ] ] (list.chunks { bias = "right"; dropExtra = false; } 3 (list.range 1 8)))
+    (assertEqual [ [ 1 2 3 ] [ 4 5 6 ] ] (list.chunks { bias = "left"; dropExtra = true; } 3 (list.range 1 8)))
+    (assertEqual [ [ 3 4 5 ] [ 6 7 8 ] ] (list.chunks { bias = "right"; dropExtra = true; } 3 (list.range 1 8)))
+  ];
+
+
   nil = assertEqual [] list.nil;
   cons = assertEqual [1 2 3 4 5] (list.cons 1 [2 3 4 5]);
   uncons = string.unlines [
