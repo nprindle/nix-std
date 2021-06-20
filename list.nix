@@ -923,4 +923,44 @@ rec {
       nothing = { _0 = xs; _1 = []; };
       just = n: splitAt n xs;
     };
+
+  /* padLeft :: int -> a -> [a]
+
+     Pad a list to the left to a given length, adding copies of the padding
+     element on the left side if necessary. Does not shorten the list if the
+     target length is shorter than the original list.
+
+     > list.padLeft 5 0 [ 1 0 ]
+     [ 0 0 0 1 0 ]
+     > list.padLeft 3 1 [ 1 0 1 0 1 ]
+     [ 1 0 1 0 1 ]
+  */
+  padLeft = n: fill: xs:
+    let
+      listLen = length xs;
+      padLen = num.max 0 (n - listLen);
+      padding = take padLen (replicate padLen fill);
+    in if padLen > 0
+      then padding ++ xs
+      else xs;
+
+  /* padRight :: int -> a -> [a]
+
+     Pad a list to the right to a given length, adding copies of the padding
+     element on the right side if necessary. Does not shorten the list if the
+     target length is shorter than the original list.
+
+     > list.padRight 5 0 [ 0 1 ]
+     [ 0 1 0 0 0 ]
+     > list.padRight 3 1 [ 1 0 1 0 1 ]
+     [ 1 0 1 0 1 ]
+  */
+  padRight = n: fill: xs:
+    let
+      listLen = length xs;
+      padLen = num.max 0 (n - listLen);
+      padding = take padLen (replicate padLen fill);
+    in if padLen > 0
+      then xs ++ padding
+      else xs;
 }

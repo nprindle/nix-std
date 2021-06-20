@@ -290,4 +290,13 @@ section "std.list" {
 
   break = assertEqual { _0 = [ 2 4 6 ]; _1 = [ 9 10 11 12 14 ]; }
     (list.break num.odd [ 2 4 6 9 10 11 12 14 ]);
+
+  padLeft = string.unlines [
+    (assertEqual [ 0 0 0 1 0 ] (list.padLeft 5 0 [ 1 0 ]))
+    (assertEqual [ 1 0 1 0 1 ] (list.padLeft 3 1 [ 1 0 1 0 1 ]))
+  ];
+  padRight = string.unlines [
+    (assertEqual [ 0 1 0 0 0 ] (list.padRight 5 0 [ 0 1 ]))
+    (assertEqual [ 1 0 1 0 1 ] (list.padRight 3 1 [ 1 0 1 0 1 ]))
+  ];
 }
