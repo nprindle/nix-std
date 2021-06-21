@@ -18,7 +18,7 @@ rec {
      > optional.isJust (regex.firstMatch (regex.escape "a+b") "a+b+c")
      true
   */
-  escape = string.escape ["\\" "^" "$" "." "+" "*" "?" "|" "(" ")" "[" "{" "}"];
+  escape = string.escape ["\\" "^" "$" "." "+" "*" "?" "|" "(" ")" "[" "{"];
 
   /* capture :: regex -> regex
 
