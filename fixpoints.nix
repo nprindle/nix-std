@@ -9,4 +9,10 @@ rec {
     let
       go = x: if p x then x else go (f x);
     in go x0;
+
+  /* fixEq :: Eq a => (a -> a) -> a -> a
+  */
+  fixEq = f:
+    let go = x: let x' = f x; in if x' == x then x' else go x';
+    in go;
 }
