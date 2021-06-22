@@ -26,6 +26,16 @@ in rec {
       }) contents;
     in list.fold set.monoid withPath;
 
+  listRecursive = p:
+    let
+      contents = set.toList (readDir p);
+      visit = name: type:
+        let path = p + "/${name}";
+        in if type == "directory"
+          then listRecursive path
+          else [ { inherit name path type; } ];
+    in list.concatMap ({ _0, _1 }: visit _0 _1) contents;
+
   tree = p:
     let
       recurse = sp:
