@@ -7,6 +7,8 @@ rec {
   fixpoints = import ./fixpoints.nix;
   inherit (fixpoints) fix;
 
+  fs = import ./fs.nix;
+
   function = import ./function.nix;
   inherit (function) compose const flip id;
 
