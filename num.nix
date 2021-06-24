@@ -393,6 +393,14 @@ in rec {
   */
   minInt = maxInt + 1; # relies on 2's complement representation
 
+  /* inf :: float
+  */
+  inf = 1.0e308 * 10;
+
+  /* minFloat :: float
+  */
+  minFloat = 5.0e-308 / 1.0e16;
+
   bits =
     let
       # table of (bit n) for 0 <= n <= (sizeof(int) - 1)
