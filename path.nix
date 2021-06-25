@@ -2,56 +2,38 @@ let
   set = import ./set.nix;
   list = import ./list.nix;
   string = import ./string.nix;
-  regex = import ./regex.nix;
-  fixpoints = import ./fixpoints.nix;
-  function = import ./function.nix;
+  optional = import ./optional.nix;
 in rec {
   inherit (builtins) baseNameOf dirOf;
-
-  isAbsolute = path: string.hasPrefix "/" path;
 
   /* normalize :: string | path -> string
   */
   normalize = path:
-    fixpoints.fixEq
-      (function.chain [
-        # remove duplicate separators
-        (regex.substitute "/{2,}" "/")
-        # remove intermediate "/./"
-        (regex.substitute ''(.)/\./'' ''\1/'')
-        # remove leading "/./" (except if path is only "/.")
-        (x:
-          if x == "/."
-          then "/"
-          else regex.substitute ''^/\./'' "/" x
-        )
-        # remove trailing "/." (except if path is only "/.")
-        (x:
-          if x == "/."
-          then "/"
-          else regex.substitute ''/\.$'' "" x
-        )
-        # remove leading "./"
-        (x:
-          if x == "./"
-          then "."
-          else string.removePrefix "./" x
-        )
-        # remove trailing "/" (except if path is only "/")
-        (x:
-          if x == "/"
-          then "/"
-          else string.removeSuffix "/" x
-        )
-      ])
-      (builtins.toString path);
+    let
+      parts = components path;
+    in if list.length parts > 0 && list.index parts 0 == "/"
+      then "/" + string.concatSep "/" (list.tail parts)
+      else string.concatSep "/" parts;
 
   /* components :: string | path -> [string]
   */
   components = path:
     let
-      path' = normalize path;
-      cs = regex.splitOn "/" path';
-      cs' = if isAbsolute path' then list.setAt 0 "/" cs else cs;
-    in cs';
+      parts =
+        list.unfold
+          (mp:
+            optional.match mp {
+              nothing = optional.nothing;
+              just = p:
+                let
+                  b = builtins.baseNameOf p;
+                  d = builtins.dirOf p;
+                in
+                  if (d == "/" && b == "") || (d == "." && b == ".")
+                  then optional.just { _0 = d; _1 = optional.nothing; }
+                  else optional.just { _0 = b; _1 = optional.just d; };
+            }
+          )
+          (optional.just path);
+    in list.filter (p: p != "." && p != "") (list.reverse parts);
 }
