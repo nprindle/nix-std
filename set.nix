@@ -116,4 +116,8 @@ rec {
      from the final result.
   */
   fromList = list.foldl' (as: { _0, _1 }: as // { "${_0}" = _1; }) {};
+
+  /* intersect :: set -> set -> set
+  */
+  intersect = builtins.intersectAttrs;
 }
