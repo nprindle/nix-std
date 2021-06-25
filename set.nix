@@ -21,7 +21,17 @@ rec {
   */
   assign = k: v: r: r // { "${k}" = v; };
 
+  /* contains :: key -> set -> bool
+  */
   contains = k: s: s ? "${k}";
+
+  /* remove :: key -> set -> set
+  */
+  remove = k: a: builtins.removeAttrs a [k];
+
+  /* removeAll :: [key] -> set -> set
+  */
+  removeAll = ks: a: builtins.removeAttrs a ks;
 
   match = o: { empty, assign }:
     if o == {}
