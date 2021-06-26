@@ -100,6 +100,23 @@ section "std.list" {
   init = assertEqual [10 20] (list.init [10 20 30]);
   last = assertEqual 30 (list.last [10 20 30]);
 
+  safeHead = string.unlines [
+    (assertEqual (optional.just 10) (list.safeHead [10 20 30]))
+    (assertEqual optional.nothing (list.safeHead []))
+  ];
+  safeTail = string.unlines [
+    (assertEqual (optional.just [20 30]) (list.safeTail [10 20 30]))
+    (assertEqual optional.nothing (list.safeTail []))
+  ];
+  safeInit = string.unlines [
+    (assertEqual (optional.just [10 20]) (list.safeInit [10 20 30]))
+    (assertEqual optional.nothing (list.safeInit []))
+  ];
+  safeLast = string.unlines [
+    (assertEqual (optional.just 30) (list.safeLast [10 20 30]))
+    (assertEqual optional.nothing (list.safeLast []))
+  ];
+
   inits = string.unlines [
     (assertEqual [[]] (list.inits []))
     (assertEqual [[] [1] [1 2] [1 2 3]] (list.inits [1 2 3]))
@@ -153,6 +170,11 @@ section "std.list" {
   ifor = assertEqual ["foo-0" "bar-1"] (list.ifor ["foo" "bar"] (i: s: s + "-" + builtins.toString i));
   elemAt = assertEqual "barry" (list.elemAt ["bar" "ry" "barry"] 2);
   index = assertEqual "barry" (list.index ["bar" "ry" "barry"] 2);
+  safeIndex = string.unlines [
+    (assertEqual (optional.just "barry") (list.safeIndex ["bar" "ry" "barry"] 2))
+    (assertEqual optional.nothing (list.safeIndex ["bar" "ry" "barry"] (-1)))
+    (assertEqual optional.nothing (list.safeIndex ["bar" "ry" "barry"] 3))
+  ];
   concat = assertEqual ["foo" "bar" "baz" "quux"] (list.concat [["foo"] ["bar"] ["baz" "quux"]]);
   filter = assertEqual ["foo" "fun" "friends"] (list.filter (string.hasPrefix "f") ["foo" "oof" "fun" "nuf" "friends" "sdneirf"]);
   elem = assertEqual builtins.true (list.elem "friend" ["texas" "friend" "amigo"]);

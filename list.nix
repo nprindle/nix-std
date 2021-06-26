@@ -104,6 +104,21 @@ rec {
   */
   head = builtins.head;
 
+  /* safeHead :: [a] -> optional a
+
+     Get the first element of a list. Returns `optional.nothing` if the list is
+     empty.
+
+     > list.safeHead [ 1 2 3 ]
+     { _tag = "just"; value = 1; }
+     > list.safeHead []
+     { _tag = "nothing"; }
+  */
+  safeHead = xs:
+    if builtins.length xs > 0
+    then _optional.just (builtins.head xs)
+    else _optional.nothing;
+
   /* @partial
      tail :: [a] -> [a]
 
@@ -113,6 +128,21 @@ rec {
      [ 2 3 ]
   */
   tail = builtins.tail;
+
+  /* safeTail :: [a] -> [a]
+
+     Return the list minus the first element. Returns `optional.nothing` if the
+     list is empty.
+
+     > list.safeTail [ 1 2 3 ]
+     { _tag = "just "; value = [ 2 3 ]; }
+     > list.safeTail []
+     { _tag = "nothing"; }
+  */
+  safeTail = xs:
+    if builtins.length xs > 0
+    then _optional.just (builtins.tail xs)
+    else _optional.nothing;
 
   /* @partial
      init :: [a] -> [a]
@@ -127,6 +157,21 @@ rec {
     then slice 0 (length xs - 1) xs
     else builtins.throw "std.list.init: empty list";
 
+  /* safeInit :: [a] -> [a]
+
+     Return the list minus the last element. Returns `optional.nothing` if the
+     list is empty.
+
+     > list.safeInit [ 1 2 3 ]
+     { _tag = "just"; value = [ 1 2 ]; }
+     > list.safeInit []
+     { _tag = "nothing"; }
+  */
+  safeInit = xs:
+    if builtins.length xs > 0
+    then _optional.just (slice 0 (length xs - 1) xs)
+    else _optional.nothing;
+
   /* @partial
      last :: [a] -> a
 
@@ -138,6 +183,22 @@ rec {
   last = xs:
     let len = length xs;
     in index xs (len - 1);
+
+  /* safeLast :: [a] -> a
+
+     Get the safeLast element of a list. Returns `optional.nothing` if the list
+     is empty.
+
+     > list.safeLast [ 1 2 3 ]
+     { _tag = "just"; value = 3; }
+     > list.safeLast []
+     { _tag = "nothing"; }
+  */
+  safeLast = xs:
+    let len = length xs;
+    in if len > 0
+      then _optional.just (index xs (len - 1))
+      else _optional.nothing;
 
   /* tails :: [a] -> [[a]]
 
@@ -331,12 +392,30 @@ rec {
   /* @partial
      index :: [a] -> int -> a
 
-     Get the nth element of a list, indexed from 0. An alias for 'elemAt'.
+     Get the nth element of a list, indexed from 0. An alias for 'elemAt'. Fails
+     if the index is out of bounds of the list.
 
      > list.index [ 1 2 3 ] 1
      2
   */
   index = builtins.elemAt;
+
+  /* safeIndex :: [a] -> int -> a
+
+     Get the nth element of a list, indexed from 0. An alias for 'elemAt'.
+     Returns `optional.nothing` if the index is out of bounds of the list.
+
+     > list.safeIndex [ 1 2 3 ] 1
+     { _tag = "just"; value = 2; }
+     > list.safeIndex [ 1 2 3 ] 4
+     { _tag = "nothing"; }
+  */
+  safeIndex = xs: ix:
+    let
+      len = builtins.length xs;
+    in if ix < 0 || ix >= len
+      then _optional.nothing
+      else _optional.just (builtins.elemAt xs ix);
 
   /* concat :: [[a]] -> [a]
 
