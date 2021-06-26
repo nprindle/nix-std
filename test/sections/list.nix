@@ -306,4 +306,35 @@ section "std.list" {
     (assertEqual [ 0 1 0 0 0 ] (list.padRight 5 0 [ 0 1 ]))
     (assertEqual [ 1 0 1 0 1 ] (list.padRight 3 1 [ 1 0 1 0 1 ]))
   ];
+
+  insert =
+    let
+      # hack to get two equal elements that we can differentiate
+      d = builtins.derivation {
+        name = "nix-std-test-list-dummy";
+        system = "x";
+        builder = "x";
+      };
+      str1 = builtins.storeDir;
+      str2 = builtins.unsafeDiscardStringContext "${d}";
+      str3 = "${d}";
+    in
+      string.unlines [
+        (assertEqual [5] (list.insert 5 []))
+        (assertEqual [5 5] (list.insert 5 [5]))
+        (assertEqual [1 2 3] (list.insert 2 [1 3]))
+        (assertEqual [1 2 3] (list.insert 1 [2 3]))
+        (assertEqual [1 2 3] (list.insert 3 [1 2]))
+        (assertEqual [str1 str2 str3] (list.insert str2 [str1 str3]))
+        (assertEqual (builtins.getContext str2) (builtins.getContext (list.index (list.insert str2 [str1 str3]) 1)))
+        (assertEqual (builtins.getContext str3) (builtins.getContext (list.index (list.insert str3 [str1 str2]) 1)))
+      ];
+
+  nub = string.unlines [
+    (assertEqual [] (list.nub []))
+    (assertEqual [1] (list.nub [1]))
+    (assertEqual [1] (list.nub [1 1]))
+    (assertEqual [1 2] (list.nub [1 2 1]))
+    (assertEqual [2 1 3] (list.nub [2 1 1 3 1 2]))
+  ];
 }

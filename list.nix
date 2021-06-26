@@ -994,4 +994,41 @@ rec {
     in if padLen > 0
       then xs ++ padding
       else xs;
+
+  # TODO: dictionary passing? "default" Ord instance?
+  /* insert :: Ord a => a -> [a] -> [a]
+
+     Insert an element into a list in the first position where it is less than
+     or equal to the next element. If the input list is sorted, the result will
+     also be sorted.
+  */
+  insert = x: xs: _optional.match (findIndex (y: x <= y) xs) {
+    nothing = xs ++ [x];
+    just = i: insertAt i x xs;
+  };
+  # TODO: insertBy
+
+  # TODO: dictionary passing? "default" Eq instance?
+  /* nub :: Eq a => [a] -> [a]
+
+     Remove all duplicate elements from a list. The first occurrence of each
+     element is kept.
+  */
+  nub = nubBy (x: y: x == y);
+
+  /* nubBy :: (a -> a -> bool) -> [a] -> [a]
+
+     Like `nub`, but using a custom comparison function.
+  */
+  nubBy = f:
+    let
+      go = seen: acc: xs:
+        match xs {
+          nil = acc;
+          cons = y: ys:
+            if any (f y) seen
+            then go seen acc ys
+            else go ([y] ++ seen) (acc ++ [y]) ys;
+        };
+    in go [] [];
 }
