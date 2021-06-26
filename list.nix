@@ -136,6 +136,30 @@ rec {
     let len = length xs;
     in index xs (len - 1);
 
+  /* tails :: [a] -> [[a]]
+
+     Compute the successive applications of `tail` to a list, until it's empty.
+  */
+  tails =
+    let
+      go = acc: xs:
+        if builtins.length xs == 0
+        then acc ++ [[]]
+        else go (acc ++ [xs]) (tail xs);
+    in go [];
+
+  /* inits :: [a] -> [[a]]
+
+     Compute the successive applications of `init` to a list, until it's empty.
+  */
+  inits =
+    let
+      go = acc: xs:
+        if builtins.length xs == 0
+        then [[]] ++ acc
+        else go ([xs] ++ acc) (init xs);
+    in go [];
+
   /* take :: int -> [a] -> [a]
 
      Take the first n elements of a list. If there are fewer than n elements,

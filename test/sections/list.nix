@@ -98,8 +98,17 @@ section "std.list" {
   head = assertEqual 10 (list.head [10 20 30]);
   tail = assertEqual [20 30] (list.tail [10 20 30]);
   init = assertEqual [10 20] (list.init [10 20 30]);
-
   last = assertEqual 30 (list.last [10 20 30]);
+
+  inits = string.unlines [
+    (assertEqual [[]] (list.inits []))
+    (assertEqual [[] [1] [1 2] [1 2 3]] (list.inits [1 2 3]))
+  ];
+
+  tails = string.unlines [
+    (assertEqual [[]] (list.tails []))
+    (assertEqual [[1 2 3] [2 3] [3] []] (list.tails [1 2 3]))
+  ];
 
   take = let xs = list.range 1 20; in string.unlines [
     (assertEqual [1 2 3 4] (list.take 4 xs))
