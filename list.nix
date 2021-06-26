@@ -122,7 +122,10 @@ rec {
      > list.init [ 1 2 3 ]
      [ 1 2 ]
   */
-  init = xs: slice 0 (length xs - 1) xs;
+  init = xs:
+    if builtins.length xs > 0
+    then slice 0 (length xs - 1) xs
+    else builtins.throw "std.list.init: empty list";
 
   /* @partial
      last :: [a] -> a
