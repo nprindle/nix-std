@@ -30,6 +30,11 @@ section "std.string" {
     (assertEqual (string.substring 1 (-20) "foobar") "oobar")
   ];
   index = assertEqual (string.index "foobar" 3) "b";
+  safeIndex = string.unlines [
+    (assertEqual (string.safeIndex "foobar" 3) (optional.just "b"))
+    (assertEqual (string.safeIndex "foobar" 6) optional.nothing)
+    (assertEqual (string.safeIndex "foobar" (-1)) optional.nothing)
+  ];
   length = assertEqual (string.length "foo") 3;
   empty = string.unlines [
     (assertEqual (string.isEmpty "a") false)
@@ -91,6 +96,22 @@ section "std.string" {
   tail = assertEqual (string.tail "bar") "ar";
   init = assertEqual (string.init "bar") "ba";
   last = assertEqual (string.last "bar") "r";
+  safeHead = string.unlines [
+    (assertEqual (string.safeHead "bar") (optional.just "b"))
+    (assertEqual (string.safeHead "") optional.nothing)
+  ];
+  safeTail = string.unlines [
+    (assertEqual (string.safeTail "bar") (optional.just "ar"))
+    (assertEqual (string.safeTail "") optional.nothing)
+  ];
+  safeInit = string.unlines [
+    (assertEqual (string.safeInit "bar") (optional.just "ba"))
+    (assertEqual (string.safeInit "") optional.nothing)
+  ];
+  safeLast = string.unlines [
+    (assertEqual (string.safeLast "bar") (optional.just "r"))
+    (assertEqual (string.safeLast "") optional.nothing)
+  ];
   take = string.unlines [
     (assertEqual (string.take 3 "foobar") "foo")
     (assertEqual (string.take 7 "foobar") "foobar")

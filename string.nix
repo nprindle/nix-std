@@ -55,9 +55,24 @@ rec {
      "b"
   */
   index = str: n:
-    if n >= length str
+    if n < 0 || n >= length str
       then throw "std.string.index: index out of bounds"
       else substring n 1 str;
+
+  /* safeIndex :: string -> int -> string
+
+     Returns the nth character of a string. Returns `optional.nothing` if the
+     string is empty.
+
+     > string.safeIndex 3 "foobar"
+     { _tag = "just"; value = "b"; }
+     > string.safeIndex (-1) "foobar"
+     { _tag = "nothing"; }
+  */
+  safeIndex = str: n:
+    if n < 0 || n >= length str
+      then _optional.nothing
+      else _optional.just (substring n 1 str);
 
   /* length :: string -> int
 
@@ -350,6 +365,18 @@ rec {
       then index str 0
       else throw "std.string.head: empty string";
 
+  /* safeHead :: string -> optional string
+
+     Return the first character of the string.
+
+     Returns `optional.nothing` if the string is empty.
+  */
+  safeHead = str:
+    let len = length str;
+    in if len > 0
+      then _optional.just (index str 0)
+      else _optional.nothing;
+
   /* @partial
      tail :: string -> string
 
@@ -362,6 +389,18 @@ rec {
     in if len > 0
       then substring 1 (len - 1) str
       else throw "std.string.tail: empty string";
+
+  /* safeTail :: string -> optional string
+
+     Return the string minus the first character.
+
+     Returns `optional.nothing` if the string is empty.
+  */
+  safeTail = str:
+    let len = length str;
+    in if len > 0
+      then _optional.just (substring 1 (len - 1) str)
+      else _optional.nothing;
 
   /* @partial
      init :: string -> string
@@ -376,6 +415,18 @@ rec {
       then substring 0 (len - 1) str
       else throw "std.string.init: empty string";
 
+  /* safeInit :: string -> optional string
+
+     Return the string minus the last character.
+
+     Returns `optional.nothing` if the string is empty.
+  */
+  safeInit = str:
+    let len = length str;
+    in if len > 0
+      then _optional.just (substring 0 (len - 1) str)
+      else _optional.nothing;
+
   /* @partial
      last :: string -> string
 
@@ -388,6 +439,18 @@ rec {
     in if len > 0
       then substring (len  - 1) 1 str
       else throw "std.string.last: empty string";
+
+  /* safeLast :: string -> optional string
+
+     Return the last character of a string.
+
+     Returns `optional.nothing` if the string is empty.
+  */
+  safeLast = str:
+    let len = length str;
+    in if len > 0
+      then _optional.just (substring (len  - 1) 1 str)
+      else _optional.nothing;
 
   /* take :: int -> string -> string
 
