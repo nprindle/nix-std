@@ -427,6 +427,11 @@ in rec {
       */
       bitSize = 64;
 
+      toBits = n:
+        if n < 0
+        then list.map (x: 1 - x) (toBits (-(n + 1)))
+        else list.padLeft bitSize 0 (toBaseDigits 2 n);
+
       /* bitAnd :: int -> int -> int
 
          Computes the bitwise AND of the 2's complement binary representations

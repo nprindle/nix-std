@@ -28,6 +28,11 @@ section "std.num.bits" {
     (assertEqual (num.bits.bitNot (-1)) 0)
     (assertEqual (num.bits.bitNot (-6148914691236517206)) 6148914691236517205)
   ];
+  toBits =
+    let
+      checkRoundtrip = n: assertEqual n (num.fromBaseDigits 2 (num.bits.toBits n));
+      cases = [ num.minInt (-6148914691236517206) (-27) (-1) 0 1 27 6148914691236517205 num.maxInt ];
+    in string.unlines (list.map checkRoundtrip cases);
   bit =
     let
       case = n:
