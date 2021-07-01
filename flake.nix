@@ -3,9 +3,7 @@
 
   outputs = { self }:
     let
-      attrsToList = as:
-        builtins.map (n: { name = n; value = as."${n}"; })
-          (builtins.attrNames as);
+      std = import ./default.nix;
       defaultSystems = [
         "aarch64-linux"
         "i686-linux"
@@ -13,20 +11,13 @@
         "x86_64-linux"
       ];
       eachDefaultSystem = f:
-        builtins.foldl'
-          (acc: system:
-            builtins.foldl'
-              (acc: { name, value }:
-                acc // { "${name}" = (acc.${name} or { }) // { "${system}" = value; }; }
-              )
-              acc
-              (attrsToList (f system))
-          )
-          { }
-          defaultSystems;
+        std.list.foldl' std.set.mergeRecursive { }
+          (std.list.map
+            (system: std.set.map (v: { ${system} = v; }) (f system))
+            defaultSystems);
     in
     {
-      lib = import ./default.nix;
+      lib = std;
     } // eachDefaultSystem (system: {
       checks.nix-std-test = import ./test/default.nix { inherit system; };
     });

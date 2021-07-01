@@ -21,6 +21,30 @@ rec {
   */
   assign = k: v: r: r // { "${k}" = v; };
 
+  /* merge :: set -> set -> set
+  */
+  merge = a1: a2: a1 // a2;
+
+  /* mergeRecursive :: set -> set -> set
+  */
+  mergeRecursive =
+    let
+      go = a1: a2:
+        builtins.foldl'
+        (acc: k:
+          let
+            v1 = a1.${k};
+            v2 = a2.${k};
+            v' =
+              if builtins.hasAttr k acc && builtins.isAttrs v1 && builtins.isAttrs v2
+              then go v1 v2
+              else v2;
+          in acc // { ${k} = v'; }
+        )
+        a1
+        (builtins.attrNames a2);
+    in go;
+
   /* contains :: key -> set -> bool
   */
   contains = k: s: s ? "${k}";
